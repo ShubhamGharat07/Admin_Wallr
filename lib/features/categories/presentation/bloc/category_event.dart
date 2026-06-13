@@ -41,3 +41,26 @@ final class CategorySortOrderUpdated extends CategoryEvent {
   @override
   List<Object> get props => [orderedIds];
 }
+
+final class CategoryAddRequested extends CategoryEvent {
+  final String name;
+  final String slug;
+  final String iconName;
+  final bool isPremium;
+  final bool isActive;
+  final List<int>? coverImageBytes;
+  final String? coverImageFileName;
+
+  const CategoryAddRequested({
+    required this.name,
+    required this.slug,
+    required this.iconName,
+    required this.isPremium,
+    required this.isActive,
+    this.coverImageBytes,
+    this.coverImageFileName,
+  });
+
+  @override
+  List<Object> get props => [name, slug, iconName, isPremium, isActive];
+}

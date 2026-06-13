@@ -6,6 +6,7 @@ abstract final class RouteNames {
   static const wallpapers = '/wallpapers';
   static const uploadWallpaper = '/wallpapers/upload';
   static const categories = '/categories';
+  static const addCategory = '/categories/add';
   static const collections = '/collections';
   static const featured = '/featured';
   static const users = '/users';
