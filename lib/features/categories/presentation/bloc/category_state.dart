@@ -30,3 +30,11 @@ final class CategoryError extends CategoryState {
   @override
   List<Object?> get props => [message];
 }
+
+final class CategoryAdding extends CategoryState {
+  const CategoryAdding();
+}
+
+final class CategoryAdded extends CategoryState {
+  const CategoryAdded();
+}

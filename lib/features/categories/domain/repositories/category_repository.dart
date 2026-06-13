@@ -10,4 +10,5 @@ abstract interface class CategoryRepository {
   Future<Either<Failure, void>> togglePremium(String id, bool value);
   Future<Either<Failure, void>> deleteCategory(String id);
   Future<Either<Failure, void>> updateSortOrder(List<String> orderedIds);
+  Future<Either<Failure, void>> addCategory(Map<String, dynamic> data);
 }

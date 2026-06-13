@@ -1,28 +1,11 @@
-// // import 'package:flutter/material.dart';
-// // import '../../../../core/constants/admin_colors.dart';
-
-// // class CategoriesPage extends StatelessWidget {
-// //   const CategoriesPage({super.key});
-
-// //   @override
-// //   Widget build(BuildContext context) {
-// //     return const Scaffold(
-// //       backgroundColor: AdminColors.background,
-// //       body: Center(
-// //         child: Text(
-// //           'This is Categories',
-// //           style: TextStyle(color: AdminColors.textSecondary, fontSize: 20),
-// //         ),
-// //       ),
-// //     );
-// //   }
-// // }
-
 // // lib/features/categories/presentation/pages/categories_page.dart
 
 // import 'package:flutter/material.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
+// import 'package:go_router/go_router.dart';
 
+// import '../../../../config/di/injection.dart';
+// import '../../../../config/routes/route_names.dart';
 // import '../../../../core/constants/admin_colors.dart';
 // import '../../../../core/constants/admin_dimensions.dart';
 // import '../../../../core/constants/admin_strings.dart';
@@ -42,8 +25,7 @@
 //   @override
 //   Widget build(BuildContext context) {
 //     return BlocProvider(
-//       create: (context) =>
-//           context.read<CategoryBloc>()..add(const CategoriesLoadRequested()),
+//       create: (_) => sl<CategoryBloc>()..add(const CategoriesLoadRequested()),
 //       child: const _CategoriesView(),
 //     );
 //   }
@@ -61,11 +43,8 @@
 //         child: Column(
 //           crossAxisAlignment: CrossAxisAlignment.start,
 //           children: [
-//             // ── Header ──────────────────────────────────────
 //             const _Header(),
 //             SizedBox(height: AdminDimensions.lg),
-
-//             // ── Table ───────────────────────────────────────
 //             const Expanded(child: _CategoriesTable()),
 //           ],
 //         ),
@@ -77,7 +56,7 @@
 // // ─── Header ───────────────────────────────────────────────────────────────────
 
 // class _Header extends StatelessWidget {
-//   const _Header({super.key});
+//   const _Header();
 
 //   @override
 //   Widget build(BuildContext context) {
@@ -112,17 +91,14 @@
 //   }
 
 //   void _showAddCategoryDialog(BuildContext context) {
-//     // TODO: Add category dialog — next step
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       const SnackBar(content: Text('Add Category — Coming next!')),
-//     );
+//     context.go(RouteNames.addCategory);
 //   }
 // }
 
 // // ─── Table ────────────────────────────────────────────────────────────────────
 
 // class _CategoriesTable extends StatelessWidget {
-//   const _CategoriesTable({super.key});
+//   const _CategoriesTable();
 
 //   @override
 //   Widget build(BuildContext context) {
@@ -176,11 +152,8 @@
 //           ),
 //           child: Column(
 //             children: [
-//               // Table header
 //               const _TableHeader(),
 //               Divider(height: 1, color: AdminColors.border),
-
-//               // Table rows
 //               Expanded(
 //                 child: ReorderableListView.builder(
 //                   itemCount: categories.length,
@@ -205,8 +178,6 @@
 //                   },
 //                 ),
 //               ),
-
-//               // Footer
 //               Divider(height: 1, color: AdminColors.border),
 //               _TableFooter(count: categories.length),
 //             ],
@@ -220,7 +191,7 @@
 // // ─── Table Header ─────────────────────────────────────────────────────────────
 
 // class _TableHeader extends StatelessWidget {
-//   const _TableHeader({super.key});
+//   const _TableHeader();
 
 //   @override
 //   Widget build(BuildContext context) {
@@ -230,7 +201,7 @@
 //       padding: const EdgeInsets.symmetric(horizontal: AdminDimensions.md),
 //       child: Row(
 //         children: [
-//           const SizedBox(width: 24), // drag handle space
+//           const SizedBox(width: 24),
 //           SizedBox(width: AdminDimensions.sm),
 //           Expanded(
 //             flex: 4,
@@ -239,7 +210,6 @@
 //               style: AdminTextStyles.tableHeader(context),
 //             ),
 //           ),
-//           // ✅ FIX: showTableExtras ki jagah showTableColumn use kiya hai
 //           if (ResponsiveHelper.showTableColumn(context)) ...[
 //             SizedBox(
 //               width: 100,
@@ -311,15 +281,12 @@
 //           ),
 //           child: Row(
 //             children: [
-//               // Drag handle
 //               Icon(
 //                 Icons.drag_indicator,
 //                 size: 20,
 //                 color: AdminColors.textTertiary,
 //               ),
 //               SizedBox(width: AdminDimensions.sm),
-
-//               // Category icon + name
 //               Expanded(
 //                 flex: 4,
 //                 child: Row(
@@ -357,9 +324,6 @@
 //                   ],
 //                 ),
 //               ),
-
-//               // Count
-//               // ✅ FIX: Yaha bhi showTableColumn use kiya hai
 //               if (ResponsiveHelper.showTableColumn(context)) ...[
 //                 SizedBox(
 //                   width: 100,
@@ -369,8 +333,6 @@
 //                     textAlign: TextAlign.center,
 //                   ),
 //                 ),
-
-//                 // Premium toggle
 //                 SizedBox(
 //                   width: 100,
 //                   child: Center(
@@ -384,8 +346,6 @@
 //                   ),
 //                 ),
 //               ],
-
-//               // Status badge
 //               SizedBox(
 //                 width: 100,
 //                 child: Center(
@@ -397,14 +357,11 @@
 //                   ),
 //                 ),
 //               ),
-
-//               // Actions
 //               SizedBox(
 //                 width: 100,
 //                 child: Row(
 //                   mainAxisAlignment: MainAxisAlignment.center,
 //                   children: [
-//                     // Active toggle
 //                     Switch(
 //                       value: category.isActive,
 //                       onChanged: (val) => context.read<CategoryBloc>().add(
@@ -412,8 +369,6 @@
 //                       ),
 //                       activeColor: AdminColors.gold,
 //                     ),
-
-//                     // Delete
 //                     InkWell(
 //                       onTap: () => _confirmDelete(context),
 //                       borderRadius: BorderRadius.circular(6),
@@ -500,8 +455,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../config/di/injection.dart';
+import '../../../../config/routes/route_names.dart';
 import '../../../../core/constants/admin_colors.dart';
 import '../../../../core/constants/admin_dimensions.dart';
 import '../../../../core/constants/admin_strings.dart';
@@ -579,16 +536,10 @@ class _Header extends StatelessWidget {
         const Spacer(),
         AdminButton.primary(
           label: '+ ${AdminStrings.addCategory}',
-          onTap: () => _showAddCategoryDialog(context),
+          onTap: () => context.go(RouteNames.addCategory),
           icon: null,
         ),
       ],
-    );
-  }
-
-  void _showAddCategoryDialog(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Add Category — Coming next!')),
     );
   }
 }
@@ -628,7 +579,7 @@ class _CategoriesTable extends StatelessWidget {
                   'No categories yet',
                   style: AdminTextStyles.headlineSm(context),
                 ),
-                const SizedBox(height: AdminDimensions.xs),
+                SizedBox(height: AdminDimensions.xs),
                 Text(
                   'Add your first category to get started',
                   style: AdminTextStyles.bodyMdMuted(context),
@@ -710,7 +661,7 @@ class _TableHeader extends StatelessWidget {
           ),
           if (ResponsiveHelper.showTableColumn(context)) ...[
             SizedBox(
-              width: 100,
+              width: 80,
               child: Text(
                 'COUNT',
                 style: AdminTextStyles.tableHeader(context),
@@ -727,7 +678,7 @@ class _TableHeader extends StatelessWidget {
             ),
           ],
           SizedBox(
-            width: 100,
+            width: 90,
             child: Text(
               'STATUS',
               style: AdminTextStyles.tableHeader(context),
@@ -735,7 +686,7 @@ class _TableHeader extends StatelessWidget {
             ),
           ),
           SizedBox(
-            width: 100,
+            width: 110,
             child: Text(
               'ACTIONS',
               style: AdminTextStyles.tableHeader(context),
@@ -766,126 +717,132 @@ class _CategoryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          height: AdminDimensions.tableRowHeight,
-          padding: const EdgeInsets.symmetric(horizontal: AdminDimensions.md),
-          decoration: BoxDecoration(
-            color: AdminColors.surface,
-            border: isLast
-                ? null
-                : const Border(bottom: BorderSide(color: AdminColors.border)),
+    return Container(
+      height: AdminDimensions.tableRowHeight,
+      padding: const EdgeInsets.symmetric(horizontal: AdminDimensions.md),
+      decoration: BoxDecoration(
+        color: AdminColors.surface,
+        border: isLast
+            ? null
+            : const Border(bottom: BorderSide(color: AdminColors.border)),
+      ),
+      child: Row(
+        children: [
+          // Drag handle
+          const Icon(
+            Icons.drag_indicator,
+            size: 20,
+            color: AdminColors.textTertiary,
           ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.drag_indicator,
-                size: 20,
-                color: AdminColors.textTertiary,
-              ),
-              SizedBox(width: AdminDimensions.sm),
-              Expanded(
-                flex: 4,
-                child: Row(
-                  children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: _accentColor().withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(
-                        Icons.category_outlined,
-                        size: 18,
-                        color: _accentColor(),
-                      ),
-                    ),
-                    SizedBox(width: AdminDimensions.sm),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          category.name,
-                          style: AdminTextStyles.tableCell(
-                            context,
-                          ).copyWith(fontWeight: FontWeight.w600),
-                        ),
-                        Text(
-                          '/${category.slug}',
-                          style: AdminTextStyles.bodySmMuted(context),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              if (ResponsiveHelper.showTableColumn(context)) ...[
-                SizedBox(
-                  width: 100,
-                  child: Text(
-                    '${category.wallpaperCount}',
-                    style: AdminTextStyles.tableCell(context),
-                    textAlign: TextAlign.center,
+          SizedBox(width: AdminDimensions.sm),
+
+          // Category icon + name
+          Expanded(
+            flex: 4,
+            child: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: _accentColor().withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.category_outlined,
+                    size: 18,
+                    color: _accentColor(),
                   ),
                 ),
-                SizedBox(
-                  width: 100,
-                  child: Center(
-                    child: Switch(
-                      value: category.isPremium,
-                      onChanged: (val) => context.read<CategoryBloc>().add(
-                        CategoryPremiumToggled(id: category.id, value: val),
+                SizedBox(width: AdminDimensions.sm),
+                Flexible(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        category.name,
+                        style: AdminTextStyles.tableCell(
+                          context,
+                        ).copyWith(fontWeight: FontWeight.w600),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      activeColor: AdminColors.gold,
+                      Text(
+                        '/${category.slug}',
+                        style: AdminTextStyles.bodySmMuted(context),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Count + Premium
+          if (ResponsiveHelper.showTableColumn(context)) ...[
+            SizedBox(
+              width: 80,
+              child: Text(
+                '${category.wallpaperCount}',
+                style: AdminTextStyles.tableCell(context),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            SizedBox(
+              width: 100,
+              child: Center(
+                child: _CustomToggle(
+                  value: category.isPremium,
+                  onChanged: (val) => context.read<CategoryBloc>().add(
+                    CategoryPremiumToggled(id: category.id, value: val),
+                  ),
+                ),
+              ),
+            ),
+          ],
+
+          // Status badge
+          SizedBox(
+            width: 90,
+            child: Center(
+              child: AdminBadge(
+                label: category.isActive ? 'Active' : 'Hidden',
+                type: category.isActive ? BadgeType.active : BadgeType.inactive,
+              ),
+            ),
+          ),
+
+          // Actions
+          SizedBox(
+            width: 110,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _CustomToggle(
+                  value: category.isActive,
+                  onChanged: (val) => context.read<CategoryBloc>().add(
+                    CategoryActiveToggled(id: category.id, value: val),
+                  ),
+                ),
+                SizedBox(width: AdminDimensions.xs),
+                InkWell(
+                  onTap: () => _confirmDelete(context),
+                  borderRadius: BorderRadius.circular(6),
+                  child: Padding(
+                    padding: const EdgeInsets.all(6),
+                    child: Icon(
+                      Icons.delete_outline,
+                      size: 18,
+                      color: AdminColors.error,
                     ),
                   ),
                 ),
               ],
-              SizedBox(
-                width: 100,
-                child: Center(
-                  child: AdminBadge(
-                    label: category.isActive ? 'Active' : 'Hidden',
-                    type: category.isActive
-                        ? BadgeType.active
-                        : BadgeType.inactive,
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: 100,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Switch(
-                      value: category.isActive,
-                      onChanged: (val) => context.read<CategoryBloc>().add(
-                        CategoryActiveToggled(id: category.id, value: val),
-                      ),
-                      activeColor: AdminColors.gold,
-                    ),
-                    InkWell(
-                      onTap: () => _confirmDelete(context),
-                      borderRadius: BorderRadius.circular(6),
-                      child: Padding(
-                        padding: const EdgeInsets.all(6),
-                        child: Icon(
-                          Icons.delete_outline,
-                          size: 18,
-                          color: AdminColors.error,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -921,6 +878,44 @@ class _CategoryRow extends StatelessWidget {
             },
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ─── Custom Toggle ────────────────────────────────────────────────────────────
+
+class _CustomToggle extends StatelessWidget {
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const _CustomToggle({required this.value, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => onChanged(!value),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: 44,
+        height: 24,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: value ? AdminColors.gold : AdminColors.border,
+        ),
+        child: AnimatedAlign(
+          duration: const Duration(milliseconds: 200),
+          alignment: value ? Alignment.centerRight : Alignment.centerLeft,
+          child: Container(
+            width: 18,
+            height: 18,
+            margin: const EdgeInsets.symmetric(horizontal: 3),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: value ? AdminColors.onGold : AdminColors.textTertiary,
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -9,6 +9,7 @@ abstract interface class CategoryDataSource {
   Future<void> togglePremium(String id, bool value);
   Future<void> deleteCategory(String id);
   Future<void> updateSortOrder(List<String> orderedIds);
+  Future<void> addCategory(Map<String, dynamic> data);
 }
 
 class CategoryDataSourceImpl implements CategoryDataSource {
@@ -45,5 +46,12 @@ class CategoryDataSourceImpl implements CategoryDataSource {
       batch.update(_col.doc(orderedIds[i]), {'sortOrder': i});
     }
     await batch.commit();
+  }
+
+  @override
+  Future<void> addCategory(Map<String, dynamic> data) async {
+    final snap = await _col.get();
+    final sortOrder = snap.docs.length;
+    await _col.add({...data, 'sortOrder': sortOrder});
   }
 }

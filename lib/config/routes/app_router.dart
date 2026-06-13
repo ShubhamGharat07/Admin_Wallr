@@ -254,6 +254,7 @@ import '../../features/analytics/presentation/pages/analytics_page.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_state.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/categories/presentation/pages/add_category_page.dart';
 import '../../features/categories/presentation/pages/categories_page.dart';
 import '../../features/collections/presentation/pages/collections_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
@@ -303,6 +304,10 @@ abstract final class AppRouter {
               GoRoute(
                 path: RouteNames.categories,
                 builder: (_, __) => const CategoriesPage(),
+              ),
+              GoRoute(
+                path: RouteNames.addCategory,
+                builder: (_, __) => const AddCategoryPage(),
               ),
             ],
           ),
