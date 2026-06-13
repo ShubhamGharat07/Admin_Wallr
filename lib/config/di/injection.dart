@@ -10,6 +10,10 @@ import 'package:wallr_admin/features/categories/data/datasources/category_dataso
 import 'package:wallr_admin/features/categories/data/repositories/category_repository_impl.dart';
 import 'package:wallr_admin/features/categories/domain/repositories/category_repository.dart';
 import 'package:wallr_admin/features/categories/presentation/bloc/category_bloc.dart';
+import 'package:wallr_admin/features/wallpapers/data/datasources/wallpaper_datasource.dart';
+import 'package:wallr_admin/features/wallpapers/data/repositories/wallpaper_repository_impl.dart';
+import 'package:wallr_admin/features/wallpapers/domain/repositories/wallpaper_repository.dart';
+import 'package:wallr_admin/features/wallpapers/presentation/bloc/wallpaper_bloc.dart';
 
 import '../../core/network/network_info.dart';
 import '../../core/utils/cloudinary_service.dart';
@@ -70,4 +74,13 @@ Future<void> initDependencies() async {
     () => CategoryRepositoryImpl(sl<CategoryDataSource>()),
   );
   sl.registerFactory(() => CategoryBloc(sl<CategoryRepository>()));
+
+  // Wallpapers
+  sl.registerLazySingleton<WallpaperDataSource>(
+    () => WallpaperDataSourceImpl(sl<FirebaseFirestore>()),
+  );
+  sl.registerLazySingleton<WallpaperRepository>(
+    () => WallpaperRepositoryImpl(sl<WallpaperDataSource>()),
+  );
+  sl.registerFactory(() => WallpaperBloc(sl<WallpaperRepository>()));
 }
