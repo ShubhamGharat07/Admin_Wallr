@@ -53,6 +53,7 @@ dependencies:
   uuid: ^4.5.3
   connectivity_plus: ^7.1.1
   dartz: ^0.10.1
+  device_frame: ^1.4.0
 
 
 dev_dependencies:
