@@ -15,6 +15,7 @@ import '../../../../core/utils/responsive_helper.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/admin_button.dart';
 import '../../../../core/widgets/admin_text_field.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../categories/presentation/bloc/category_bloc.dart';
 import '../../../categories/presentation/bloc/category_event.dart';
@@ -178,24 +179,14 @@ class _UploadViewState extends State<_UploadView> {
 
   void _onPublish() {
     if (_imageBytes == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select a wallpaper image to upload.'),
-          backgroundColor: AdminColors.errorBg,
-        ),
-      );
+      AppToast.warning(context, 'Please select a wallpaper image to upload.');
       return;
     }
 
     if (!_formKey.currentState!.validate()) return;
 
     if (_selectedCategorySlug == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select a category.'),
-          backgroundColor: AdminColors.errorBg,
-        ),
-      );
+      AppToast.warning(context, 'Please select a category.');
       return;
     }
 
@@ -221,20 +212,10 @@ class _UploadViewState extends State<_UploadView> {
     return BlocListener<WallpaperBloc, WallpaperState>(
       listener: (context, state) {
         if (state is WallpaperUploadSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Wallpaper uploaded successfully!'),
-              backgroundColor: AdminColors.successBg,
-            ),
-          );
+          AppToast.success(context, 'Wallpaper uploaded successfully!');
           context.go(RouteNames.wallpapers);
         } else if (state is WallpaperUploadError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Upload failed: ${state.message}'),
-              backgroundColor: AdminColors.errorBg,
-            ),
-          );
+          AppToast.error(context, state.message, title: 'Upload failed');
         }
       },
       child: Scaffold(
@@ -252,65 +233,82 @@ class _UploadViewState extends State<_UploadView> {
   }
 
   Widget _buildContent(BuildContext context) {
-    final isMobile = ResponsiveHelper.isMobile(context);
+    // Two-column layout only on desktop. Tablet + mobile stack vertically so
+    // the form and live preview each get full width instead of being cramped.
+    final isDesktop = ResponsiveHelper.isDesktop(context);
 
     return SingleChildScrollView(
       padding: AdminDimensions.contentPadding(context),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _PageHeader(),
-            SizedBox(height: AdminDimensions.lg),
-            isMobile
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _buildUploadZone(context),
-                      SizedBox(height: AdminDimensions.lg),
-                      _buildMetadataCard(context),
-                      SizedBox(height: AdminDimensions.lg),
-                      _buildTogglesCard(context),
-                      SizedBox(height: AdminDimensions.lg),
-                      _buildPreviewCard(context),
-                      SizedBox(height: AdminDimensions.lg),
-                      _buildActionsCard(context, fullWidth: true),
-                    ],
-                  )
-                : Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Left side (60%): Forms & details
-                      Expanded(
-                        flex: 6,
-                        child: Column(
-                          children: [
-                            _buildUploadZone(context),
-                            SizedBox(height: AdminDimensions.lg),
-                            _buildMetadataCard(context),
-                            SizedBox(height: AdminDimensions.lg),
-                            _buildTogglesCard(context),
-                          ],
-                        ),
-                      ),
-                      SizedBox(width: AdminDimensions.lg),
-                      // Right side (40%): Live Preview & Action
-                      Expanded(
-                        flex: 4,
-                        child: Column(
-                          children: [
-                            _buildPreviewCard(context),
-                            SizedBox(height: AdminDimensions.lg),
-                            _buildActionsCard(context, fullWidth: false),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-          ],
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: AdminDimensions.contentMaxWidth,
+          ),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _PageHeader(),
+                SizedBox(height: AdminDimensions.lg),
+                isDesktop
+                    ? _buildTwoColumnLayout(context)
+                    : _buildStackedLayout(context),
+              ],
+            ),
+          ),
         ),
       ),
+    );
+  }
+
+  // Desktop: forms on the left (60%), live preview + actions on the right (40%).
+  Widget _buildTwoColumnLayout(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          flex: 6,
+          child: Column(
+            children: [
+              _buildUploadZone(context),
+              SizedBox(height: AdminDimensions.lg),
+              _buildMetadataCard(context),
+              SizedBox(height: AdminDimensions.lg),
+              _buildTogglesCard(context),
+            ],
+          ),
+        ),
+        SizedBox(width: AdminDimensions.lg),
+        Expanded(
+          flex: 4,
+          child: Column(
+            children: [
+              _buildPreviewCard(context),
+              SizedBox(height: AdminDimensions.lg),
+              _buildActionsCard(context),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Tablet + mobile: everything stacked in a single full-width column.
+  Widget _buildStackedLayout(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildUploadZone(context),
+        SizedBox(height: AdminDimensions.lg),
+        _buildMetadataCard(context),
+        SizedBox(height: AdminDimensions.lg),
+        _buildTogglesCard(context),
+        SizedBox(height: AdminDimensions.lg),
+        _buildPreviewCard(context),
+        SizedBox(height: AdminDimensions.lg),
+        _buildActionsCard(context),
+      ],
     );
   }
 
@@ -1031,7 +1029,7 @@ class _UploadViewState extends State<_UploadView> {
 
   // ── Actions Card ────────────────────────────────────────────────────────────
 
-  Widget _buildActionsCard(BuildContext context, {required bool fullWidth}) {
+  Widget _buildActionsCard(BuildContext context) {
     return _SectionCard(
       title: 'Actions',
       icon: Icons.save_outlined,

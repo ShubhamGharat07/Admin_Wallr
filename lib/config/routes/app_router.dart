@@ -265,6 +265,7 @@ import '../../features/subscriptions/presentation/pages/subscriptions_page.dart'
 import '../../features/users/presentation/pages/users_page.dart';
 import '../../features/wallpapers/presentation/pages/upload_page.dart';
 import '../../features/wallpapers/presentation/pages/wallpapers_page.dart';
+import 'page_transitions.dart';
 import 'route_names.dart';
 
 abstract final class AppRouter {
@@ -273,11 +274,15 @@ abstract final class AppRouter {
     redirect: _guard,
     routes: [
       // ── Login ──────────────────────────────────────────────
-      GoRoute(path: RouteNames.login, builder: (_, __) => const LoginPage()),
+      GoRoute(
+        path: RouteNames.login,
+        pageBuilder: (_, state) => fadePage(state: state, child: const LoginPage()),
+      ),
 
       // ── Shell ──────────────────────────────────────────────
       StatefulShellRoute.indexedStack(
-        builder: (_, __, shell) => AdminShell(navigationShell: shell),
+        pageBuilder: (_, state, shell) =>
+            fadePage(state: state, child: AdminShell(navigationShell: shell)),
         branches: [
           StatefulShellBranch(
             routes: [

@@ -54,6 +54,7 @@ dependencies:
   connectivity_plus: ^7.1.1
   dartz: ^0.10.1
   device_frame: ^1.4.0
+  toastification: ^3.2.0
 
 
 dev_dependencies:

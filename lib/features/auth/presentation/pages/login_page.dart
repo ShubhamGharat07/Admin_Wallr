@@ -12,6 +12,7 @@ import '../../../../core/constants/admin_text_styles.dart';
 import '../../../../core/utils/responsive_helper.dart';
 import '../../../../core/widgets/admin_button.dart';
 import '../../../../core/widgets/admin_text_field.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/utils/validators.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
@@ -54,19 +55,9 @@ class _LoginPageState extends State<LoginPage> {
         if (state is AuthSuccess) {
           context.go(RouteNames.dashboard);
         } else if (state is AuthFailureState) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: AdminColors.errorBg,
-            ),
-          );
+          AppToast.error(context, state.message, title: 'Sign in failed');
         } else if (state is AuthUnauthorized) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(AdminStrings.unauthorized),
-              backgroundColor: AdminColors.errorBg,
-            ),
-          );
+          AppToast.error(context, AdminStrings.unauthorized, title: 'Access denied');
         }
       },
       child: Scaffold(
@@ -74,13 +65,25 @@ class _LoginPageState extends State<LoginPage> {
         body: Center(
           child: SingleChildScrollView(
             padding: ResponsiveHelper.contentPadding(context),
-            child: _LoginCard(
-              formKey: _formKey,
-              emailCtrl: _emailCtrl,
-              passwordCtrl: _passwordCtrl,
-              obscure: _obscure,
-              onToggleObscure: () => setState(() => _obscure = !_obscure),
-              onSignIn: _onSignIn,
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: 1),
+              duration: const Duration(milliseconds: 450),
+              curve: Curves.easeOutCubic,
+              builder: (context, t, child) => Opacity(
+                opacity: t,
+                child: Transform.translate(
+                  offset: Offset(0, (1 - t) * 24),
+                  child: child,
+                ),
+              ),
+              child: _LoginCard(
+                formKey: _formKey,
+                emailCtrl: _emailCtrl,
+                passwordCtrl: _passwordCtrl,
+                obscure: _obscure,
+                onToggleObscure: () => setState(() => _obscure = !_obscure),
+                onSignIn: _onSignIn,
+              ),
             ),
           ),
         ),

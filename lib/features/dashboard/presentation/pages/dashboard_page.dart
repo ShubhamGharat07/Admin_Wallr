@@ -6,12 +6,18 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       backgroundColor: AdminColors.background,
       body: Center(
-        child: Text(
-          'This is Dashboard',
-          style: TextStyle(color: AdminColors.textSecondary, fontSize: 20),
+        child: TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0, end: 1),
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeOut,
+          builder: (context, t, child) => Opacity(opacity: t, child: child),
+          child: const Text(
+            'This is Dashboard',
+            style: TextStyle(color: AdminColors.textSecondary, fontSize: 20),
+          ),
         ),
       ),
     );

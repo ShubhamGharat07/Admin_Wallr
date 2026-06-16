@@ -14,6 +14,7 @@ import '../../../../core/utils/responsive_helper.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/admin_button.dart';
 import '../../../../core/widgets/admin_text_field.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../bloc/category_bloc.dart';
 import '../bloc/category_event.dart';
@@ -149,20 +150,10 @@ class _AddCategoryViewState extends State<_AddCategoryView> {
     return BlocListener<CategoryBloc, CategoryState>(
       listener: (context, state) {
         if (state is CategoryAdded) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Category added successfully!'),
-              backgroundColor: AdminColors.successBg,
-            ),
-          );
+          AppToast.success(context, 'Category added successfully!');
           context.go(RouteNames.categories);
         } else if (state is CategoryError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: AdminColors.errorBg,
-            ),
-          );
+          AppToast.error(context, state.message);
         }
       },
       child: Scaffold(
