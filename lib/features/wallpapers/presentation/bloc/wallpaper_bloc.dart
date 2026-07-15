@@ -89,6 +89,7 @@ class WallpaperBloc extends Bloc<WallpaperEvent, WallpaperState> {
 
   WallpaperBloc(this._repository) : super(const WallpaperInitial()) {
     on<WallpaperUploadRequested>(_onUpload);
+    on<WallpaperDeleteRequested>(_onDelete);
   }
 
   Future<void> _onUpload(
@@ -100,7 +101,6 @@ class WallpaperBloc extends Bloc<WallpaperEvent, WallpaperState> {
     try {
       final cloudinary = sl<CloudinaryService>();
 
-      // 1. Upload the wallpaper image to Cloudinary
       final uploadResult = await cloudinary.uploadWallpaper(
         fileBytes: e.imageBytes,
         fileName: e.fileName,
@@ -110,15 +110,11 @@ class WallpaperBloc extends Bloc<WallpaperEvent, WallpaperState> {
       final currentUserId =
           FirebaseAuth.instance.currentUser?.uid ?? 'unknown_admin';
 
-      // 2. Prepare Firestore document data
       final data = {
         'title': e.title,
         'imageUrl': uploadResult.secureUrl,
-        // FIX: was cloudinary.thumbnailUrl() (80×112 — meant for admin
-        // table rows only). Home screen grid cards are far bigger, so
-        // that tiny image was being upscaled → visible blur. previewUrl()
-        // (400×600) is the correct size for grid cards.
         'thumbnailUrl': cloudinary.previewUrl(uploadResult.secureUrl),
+        'publicId': uploadResult.publicId,
         'category': e.category,
         'tags': e.tags,
         'resolution': e.resolution,
@@ -134,7 +130,6 @@ class WallpaperBloc extends Bloc<WallpaperEvent, WallpaperState> {
         'createdAt': FieldValue.serverTimestamp(),
       };
 
-      // 3. Save to Firestore
       final result = await _repository.uploadWallpaper(data);
       result.fold((failure) {
         AppLogger.error(
@@ -151,6 +146,51 @@ class WallpaperBloc extends Bloc<WallpaperEvent, WallpaperState> {
         tag: 'WallpaperBloc',
       );
       emit(WallpaperUploadError(err.toString()));
+    }
+  }
+
+  Future<void> _onDelete(
+    WallpaperDeleteRequested e,
+    Emitter<WallpaperState> emit,
+  ) async {
+    AppLogger.info('DELETE REQUEST RECEIVED', tag: 'WallpaperBloc');
+    AppLogger.info('Wallpaper ID: ${e.wallpaperId}', tag: 'WallpaperBloc');
+    AppLogger.info('Title: ${e.title}', tag: 'WallpaperBloc');
+    AppLogger.info('Category: ${e.category}', tag: 'WallpaperBloc');
+    AppLogger.info('Public ID: ${e.publicId}', tag: 'WallpaperBloc');
+
+    emit(WallpaperDeleting(e.wallpaperId));
+    AppLogger.info('EMITTED: WallpaperDeleting state', tag: 'WallpaperBloc');
+
+    try {
+      AppLogger.info('Calling repository.deleteWallpaper()', tag: 'WallpaperBloc');
+      final result = await _repository.deleteWallpaper(e.wallpaperId, e.category, e.publicId);
+      AppLogger.info('Repository returned result', tag: 'WallpaperBloc');
+
+      result.fold(
+        (failure) {
+          AppLogger.error(
+            'Repository returned failure: ${failure.message}',
+            tag: 'WallpaperBloc',
+          );
+          emit(WallpaperDeleteError(failure.message, e.wallpaperId));
+          AppLogger.info('EMITTED: WallpaperDeleteError state', tag: 'WallpaperBloc');
+        },
+        (_) {
+          AppLogger.info('Repository returned success', tag: 'WallpaperBloc');
+          emit(WallpaperDeleteSuccess(e.wallpaperId, e.title));
+          AppLogger.info('EMITTED: WallpaperDeleteSuccess state', tag: 'WallpaperBloc');
+        },
+      );
+    } catch (err, stackTrace) {
+      AppLogger.error(
+        'Exception during wallpaper delete process: $err',
+        error: err,
+        stackTrace: stackTrace,
+        tag: 'WallpaperBloc',
+      );
+      emit(WallpaperDeleteError(err.toString(), e.wallpaperId));
+      AppLogger.info('EMITTED: WallpaperDeleteError state (from exception)', tag: 'WallpaperBloc');
     }
   }
 }

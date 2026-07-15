@@ -5,6 +5,7 @@ class WallpaperEntity extends Equatable {
   final String title;
   final String imageUrl;
   final String thumbnailUrl;
+  final String publicId;
   final String category;
   final List<String> tags;
   final String resolution;
@@ -24,6 +25,7 @@ class WallpaperEntity extends Equatable {
     required this.title,
     required this.imageUrl,
     required this.thumbnailUrl,
+    required this.publicId,
     required this.category,
     required this.tags,
     required this.resolution,
@@ -45,6 +47,7 @@ class WallpaperEntity extends Equatable {
         title,
         imageUrl,
         thumbnailUrl,
+        publicId,
         category,
         tags,
         resolution,

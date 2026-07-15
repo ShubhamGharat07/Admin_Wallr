@@ -23,4 +23,20 @@ class WallpaperRepositoryImpl implements WallpaperRepository {
       return const Left(ServerFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, void>> deleteWallpaper(String wallpaperId, String category, String publicId) async {
+    try {
+      await _dataSource.removeWallpaper(wallpaperId, category, publicId);
+      return const Right(null);
+    } catch (e, stackTrace) {
+      AppLogger.error(
+        'deleteWallpaper failed in repository for ID: $wallpaperId',
+        error: e,
+        stackTrace: stackTrace,
+        tag: 'WallpaperRepository',
+      );
+      return const Left(ServerFailure());
+    }
+  }
 }

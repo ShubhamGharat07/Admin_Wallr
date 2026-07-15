@@ -77,7 +77,7 @@ Future<void> initDependencies() async {
 
   // Wallpapers
   sl.registerLazySingleton<WallpaperDataSource>(
-    () => WallpaperDataSourceImpl(sl<FirebaseFirestore>()),
+    () => WallpaperDataSourceImpl(sl<FirebaseFirestore>(), sl<CloudinaryService>()),
   );
   sl.registerLazySingleton<WallpaperRepository>(
     () => WallpaperRepositoryImpl(sl<WallpaperDataSource>()),

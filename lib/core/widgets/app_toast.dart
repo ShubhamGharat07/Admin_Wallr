@@ -25,6 +25,7 @@ abstract final class AppToast {
         title: title ?? 'Success',
         type: ToastificationType.success,
         accent: AdminColors.gold,
+        bgColor: const Color(0xFF1F3A1F),
         icon: Icons.check_circle_outline_rounded,
       );
 
@@ -34,7 +35,8 @@ abstract final class AppToast {
         message: message,
         title: title ?? 'Something went wrong',
         type: ToastificationType.error,
-        accent: AdminColors.error,
+        accent: const Color(0xFFFF5252),
+        bgColor: const Color(0xFF3A1F1F),
         icon: Icons.error_outline_rounded,
       );
 
@@ -44,7 +46,8 @@ abstract final class AppToast {
         message: message,
         title: title ?? 'Heads up',
         type: ToastificationType.warning,
-        accent: AdminColors.warning,
+        accent: const Color(0xFFFFB74D),
+        bgColor: const Color(0xFF3A2F1F),
         icon: Icons.warning_amber_rounded,
       );
 
@@ -54,7 +57,8 @@ abstract final class AppToast {
         message: message,
         title: title ?? 'Info',
         type: ToastificationType.info,
-        accent: AdminColors.info,
+        accent: const Color(0xFF64B5F6),
+        bgColor: const Color(0xFF1F2F3A),
         icon: Icons.info_outline_rounded,
       );
 
@@ -64,6 +68,7 @@ abstract final class AppToast {
     required String title,
     required ToastificationType type,
     required Color accent,
+    required Color bgColor,
     required IconData icon,
   }) {
     toastification.show(
@@ -72,50 +77,50 @@ abstract final class AppToast {
       style: ToastificationStyle.flatColored,
       alignment: Alignment.topRight,
       autoCloseDuration: const Duration(seconds: 4),
-      animationDuration: const Duration(milliseconds: 450),
+      animationDuration: const Duration(milliseconds: 400),
       animationBuilder: _animationBuilder,
-      backgroundColor: AdminColors.surfaceElevated,
+      backgroundColor: bgColor,
       foregroundColor: AdminColors.textPrimary,
       primaryColor: accent,
-      icon: Icon(icon, color: accent),
-      // Keep the toast compact instead of stretching full width.
-      sizeConstraints: const BoxConstraints(minWidth: 280, maxWidth: 380),
+      icon: Icon(icon, color: accent, size: 20),
+      sizeConstraints: const BoxConstraints(minWidth: 300, maxWidth: 400),
       padding: const EdgeInsets.symmetric(
         horizontal: AdminDimensions.md,
-        vertical: AdminDimensions.sm + 2,
+        vertical: AdminDimensions.sm + 4,
       ),
       title: Text(
         title,
-        style: AdminTextStyles.bodyMd(
-          context,
-        ).copyWith(fontWeight: FontWeight.w600),
+        style: AdminTextStyles.bodyMd(context).copyWith(
+          fontWeight: FontWeight.w600,
+          color: accent,
+        ),
       ),
       description: Text(
         message,
         softWrap: true,
         maxLines: 4,
         overflow: TextOverflow.ellipsis,
-        style: AdminTextStyles.bodySm(
-          context,
-        ).copyWith(color: AdminColors.textSecondary),
+        style: AdminTextStyles.bodySm(context).copyWith(
+          color: AdminColors.textSecondary,
+        ),
       ),
       borderRadius: BorderRadius.circular(AdminDimensions.cardRadius),
-      borderSide: BorderSide(color: accent.withValues(alpha: 0.45), width: 1),
+      borderSide: BorderSide(color: accent.withValues(alpha: 0.5), width: 1.5),
       showProgressBar: true,
       progressBarTheme: ProgressIndicatorThemeData(
         color: accent,
-        linearTrackColor: accent.withValues(alpha: 0.15),
+        linearTrackColor: accent.withValues(alpha: 0.2),
       ),
       closeButton: const ToastCloseButton(
         showType: CloseButtonShowType.onHover,
       ),
       dragToClose: true,
       pauseOnHover: true,
-      boxShadow: const [
+      boxShadow: [
         BoxShadow(
-          color: Color(0x40000000),
-          blurRadius: 20,
-          offset: Offset(0, 6),
+          color: accent.withValues(alpha: 0.2),
+          blurRadius: 16,
+          offset: const Offset(0, 4),
         ),
       ],
     );

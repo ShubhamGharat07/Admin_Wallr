@@ -1,11 +1,12 @@
-// lib/core/widgets/loading_widget.dart
-
 import 'package:flutter/material.dart';
 import '../constants/admin_colors.dart';
+import '../constants/admin_text_styles.dart';
 
 class LoadingWidget extends StatelessWidget {
   final String? message;
-  const LoadingWidget({super.key, this.message});
+  final double size;
+
+  const LoadingWidget({super.key, this.message, this.size = 48});
 
   @override
   Widget build(BuildContext context) {
@@ -13,18 +14,23 @@ class LoadingWidget extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const CircularProgressIndicator(
-            color: AdminColors.gold,
-            strokeWidth: 2,
+          SizedBox(
+            width: size,
+            height: size,
+            child: const CircularProgressIndicator(
+              color: AdminColors.gold,
+              strokeWidth: 2.5,
+              strokeCap: StrokeCap.round,
+            ),
           ),
           if (message != null) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Text(
               message!,
-              style: const TextStyle(
+              style: AdminTextStyles.bodyMd(context).copyWith(
                 color: AdminColors.textSecondary,
-                fontSize: 13,
               ),
+              textAlign: TextAlign.center,
             ),
           ],
         ],

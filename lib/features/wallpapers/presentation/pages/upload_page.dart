@@ -87,50 +87,29 @@ class _UploadViewState extends State<_UploadView> {
         withData: true,
       );
 
-      if (result != null && result.files.isNotEmpty) {
-        final file = result.files.first;
-        if (file.bytes != null) {
-          final bytes = file.bytes!;
-          final fileName = file.name;
+      if (result?.files.isEmpty ?? true) return;
 
-          // Format from file extension
-          final ext = fileName.split('.').last.toUpperCase();
-          final format = ['JPG', 'JPEG', 'PNG', 'WEBP'].contains(ext)
-              ? ext
-              : 'JPEG';
+      final file = result!.files.first;
+      final bytes = file.bytes;
+      if (bytes == null) return;
 
-          // Size formatting
-          final sizeInMb = bytes.length / (1024 * 1024);
-          final sizeString = '${sizeInMb.toStringAsFixed(2)} MB';
+      final fileName = file.name;
+      final format = _extractFormat(fileName);
+      final sizeString = _formatFileSize(bytes.length);
+      final decodedImage = await decodeImageFromList(bytes);
 
-          // Decode dimensions using Flutter's native decodeImageFromList
-          final decodedImage = await decodeImageFromList(bytes);
-
-          setState(() {
-            _imageBytes = bytes;
-            _imageFileName = fileName;
-            _imageFormat = format;
-            _fileSizeString = sizeString;
-            _imageWidth = decodedImage.width;
-            _imageHeight = decodedImage.height;
-            _imageAspectRatio = decodedImage.width / decodedImage.height;
-
-            // Resolution category
-            final maxDim = max(decodedImage.width, decodedImage.height);
-            if (maxDim >= 3840) {
-              _imageResolution = '4K';
-            } else if (maxDim >= 2560) {
-              _imageResolution = '2K';
-            } else if (maxDim >= 1920) {
-              _imageResolution = 'FHD';
-            } else if (maxDim >= 1280) {
-              _imageResolution = 'HD';
-            } else {
-              _imageResolution = 'SD';
-            }
-          });
-        }
-      }
+      setState(() {
+        _imageBytes = bytes;
+        _imageFileName = fileName;
+        _imageFormat = format;
+        _fileSizeString = sizeString;
+        _imageWidth = decodedImage.width;
+        _imageHeight = decodedImage.height;
+        _imageAspectRatio = decodedImage.width / decodedImage.height;
+        _imageResolution = _getResolutionCategory(
+          max(decodedImage.width, decodedImage.height),
+        );
+      });
     } catch (e, stackTrace) {
       AppLogger.error(
         'Failed to pick/decode image',
@@ -139,6 +118,24 @@ class _UploadViewState extends State<_UploadView> {
         tag: 'UploadPage',
       );
     }
+  }
+
+  String _extractFormat(String fileName) {
+    final ext = fileName.split('.').last.toUpperCase();
+    return ['JPG', 'JPEG', 'PNG', 'WEBP'].contains(ext) ? ext : 'JPEG';
+  }
+
+  String _formatFileSize(int bytes) {
+    final sizeInMb = bytes / (1024 * 1024);
+    return '${sizeInMb.toStringAsFixed(2)} MB';
+  }
+
+  String _getResolutionCategory(int maxDim) {
+    if (maxDim >= 3840) return '4K';
+    if (maxDim >= 2560) return '2K';
+    if (maxDim >= 1920) return 'FHD';
+    if (maxDim >= 1280) return 'HD';
+    return 'SD';
   }
 
   void _removeSelectedImage() {
@@ -179,14 +176,17 @@ class _UploadViewState extends State<_UploadView> {
 
   void _onPublish() {
     if (_imageBytes == null) {
-      AppToast.warning(context, 'Please select a wallpaper image to upload.');
+      AppToast.warning(
+        context,
+        'Please select a wallpaper image before publishing.',
+      );
       return;
     }
 
     if (!_formKey.currentState!.validate()) return;
 
     if (_selectedCategorySlug == null) {
-      AppToast.warning(context, 'Please select a category.');
+      AppToast.warning(context, 'Please select a category for the wallpaper.');
       return;
     }
 
@@ -588,22 +588,7 @@ class _UploadViewState extends State<_UploadView> {
               ),
             ),
             const SizedBox(width: 8),
-            SizedBox(
-              height: 48,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AdminColors.inputSurface,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                      AdminDimensions.inputRadius,
-                    ),
-                    side: const BorderSide(color: AdminColors.border),
-                  ),
-                ),
-                onPressed: _addTag,
-                child: const Icon(Icons.add, color: AdminColors.gold),
-              ),
-            ),
+            _buildAddTagButton(),
           ],
         ),
         if (_tags.isNotEmpty) ...[
@@ -611,26 +596,39 @@ class _UploadViewState extends State<_UploadView> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: _tags.map((tag) {
-              return Chip(
-                label: Text(tag, style: const TextStyle(fontSize: 12)),
-                backgroundColor: AdminColors.surface,
-                labelStyle: const TextStyle(color: AdminColors.gold),
-                deleteIcon: const Icon(
-                  Icons.close,
-                  size: 14,
-                  color: AdminColors.error,
-                ),
-                onDeleted: () => _removeTag(tag),
-                side: const BorderSide(color: AdminColors.border),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              );
-            }).toList(),
+            children: _tags.map(_buildTagChip).toList(),
           ),
         ],
       ],
+    );
+  }
+
+  Widget _buildAddTagButton() {
+    return Padding(
+      padding: EdgeInsets.only(top: AdminDimensions.xs),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AdminColors.gold,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AdminDimensions.inputRadius),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        ),
+        onPressed: _addTag,
+        child: const Icon(Icons.add, color: AdminColors.onGold, size: 20),
+      ),
+    );
+  }
+
+  Widget _buildTagChip(String tag) {
+    return Chip(
+      label: Text(tag, style: const TextStyle(fontSize: 12)),
+      backgroundColor: AdminColors.surface,
+      labelStyle: const TextStyle(color: AdminColors.gold),
+      deleteIcon: const Icon(Icons.close, size: 14, color: AdminColors.error),
+      onDeleted: () => _removeTag(tag),
+      side: const BorderSide(color: AdminColors.border),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
     );
   }
 
@@ -760,7 +758,7 @@ class _UploadViewState extends State<_UploadView> {
                       Icon(
                         Icons.image_outlined,
                         size: 40,
-                        color: AdminColors.textTertiary.withOpacity(0.5),
+                        color: AdminColors.textTertiary.withValues(alpha: 0.5),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -804,7 +802,7 @@ class _UploadViewState extends State<_UploadView> {
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 13,
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                   ),
                 ),
               ],
@@ -831,22 +829,29 @@ class _UploadViewState extends State<_UploadView> {
       height: 44,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Colors.black.withOpacity(0.4),
+        color: Colors.black.withValues(alpha: 0.4),
       ),
       child: Icon(icon, color: Colors.white, size: 20),
     );
   }
 
   Widget _buildMockHomeScreen() {
-    final mockApps = [
-      {'icon': Icons.phone, 'label': 'Phone'},
-      {'icon': Icons.chat_bubble_outline, 'label': 'Messages'},
-      {'icon': Icons.mail_outline, 'label': 'Mail'},
-      {'icon': Icons.camera_alt_outlined, 'label': 'Camera'},
-      {'icon': Icons.map_outlined, 'label': 'Maps'},
-      {'icon': Icons.photo_library_outlined, 'label': 'Photos'},
-      {'icon': Icons.music_note, 'label': 'Music'},
-      {'icon': Icons.settings_outlined, 'label': 'Settings'},
+    const mockApps = [
+      ('Phone', Icons.phone),
+      ('Messages', Icons.chat_bubble_outline),
+      ('Mail', Icons.mail_outline),
+      ('Camera', Icons.camera_alt_outlined),
+      ('Maps', Icons.map_outlined),
+      ('Photos', Icons.photo_library_outlined),
+      ('Music', Icons.music_note),
+      ('Settings', Icons.settings_outlined),
+    ];
+
+    const dockIcons = [
+      Icons.safety_check_sharp,
+      Icons.storefront_outlined,
+      Icons.videocam_outlined,
+      Icons.file_copy_outlined,
     ];
 
     return SafeArea(
@@ -855,74 +860,65 @@ class _UploadViewState extends State<_UploadView> {
         children: [
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 32.0,
-              ),
-              child: GridView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+              child: GridView.count(
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: mockApps.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  childAspectRatio: 0.75,
-                ),
-                itemBuilder: (context, index) {
-                  final app = mockApps[index];
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 42,
-                        height: 42,
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.4),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(
-                          app['icon'] as IconData,
-                          color: Colors.white,
-                          size: 22,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        app['label'] as String,
-                        style: const TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 9,
-                          color: Colors.white,
-                        ),
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  );
-                },
+                crossAxisCount: 4,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 0.75,
+                children: mockApps
+                    .map((app) => _buildMockAppIcon(app.$2, app.$1))
+                    .toList(),
               ),
             ),
           ),
-          // Bottom Dock
-          Container(
-            margin: const EdgeInsets.all(12),
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.35),
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildDockIcon(Icons.safety_check_sharp),
-                _buildDockIcon(Icons.storefront_outlined),
-                _buildDockIcon(Icons.videocam_outlined),
-                _buildDockIcon(Icons.file_copy_outlined),
-              ],
-            ),
-          ),
+          _buildMockDock(dockIcons),
         ],
+      ),
+    );
+  }
+
+  Widget _buildMockAppIcon(IconData icon, String label) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.4),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: Colors.white, size: 22),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 9,
+            color: Colors.white,
+          ),
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMockDock(List<IconData> icons) {
+    return Container(
+      margin: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: icons.map(_buildDockIcon).toList(),
       ),
     );
   }
@@ -932,7 +928,7 @@ class _UploadViewState extends State<_UploadView> {
       width: 38,
       height: 38,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.15),
+        color: Colors.white.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Icon(icon, color: Colors.white, size: 20),
@@ -990,12 +986,17 @@ class _UploadViewState extends State<_UploadView> {
   }
 
   String _getAspectRatioLabel(double ratio) {
-    // Round to common mobile/screen ratios
-    if ((ratio - 9 / 16).abs() < 0.05) return '9:16';
-    if ((ratio - 9 / 19.5).abs() < 0.05) return '9:19.5';
-    if ((ratio - 9 / 18.5).abs() < 0.05) return '9:18.5';
-    if ((ratio - 2 / 3).abs() < 0.05) return '2:3';
-    if ((ratio - 3 / 4).abs() < 0.05) return '3:4';
+    const ratios = {
+      '9:16': 9 / 16,
+      '9:19.5': 9 / 19.5,
+      '9:18.5': 9 / 18.5,
+      '2:3': 2 / 3,
+      '3:4': 3 / 4,
+    };
+
+    for (final entry in ratios.entries) {
+      if ((ratio - entry.value).abs() < 0.05) return entry.key;
+    }
     return ratio.toStringAsFixed(2);
   }
 

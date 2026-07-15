@@ -26,3 +26,29 @@ class WallpaperUploadError extends WallpaperState {
   @override
   List<Object?> get props => [message];
 }
+
+class WallpaperDeleting extends WallpaperState {
+  final String wallpaperId;
+  const WallpaperDeleting(this.wallpaperId);
+
+  @override
+  List<Object?> get props => [wallpaperId];
+}
+
+class WallpaperDeleteSuccess extends WallpaperState {
+  final String wallpaperId;
+  final String title;
+  const WallpaperDeleteSuccess(this.wallpaperId, this.title);
+
+  @override
+  List<Object?> get props => [wallpaperId, title];
+}
+
+class WallpaperDeleteError extends WallpaperState {
+  final String message;
+  final String wallpaperId;
+  const WallpaperDeleteError(this.message, this.wallpaperId);
+
+  @override
+  List<Object?> get props => [message, wallpaperId];
+}

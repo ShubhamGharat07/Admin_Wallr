@@ -3,4 +3,5 @@ import '../../../../core/error/failures.dart';
 
 abstract interface class WallpaperRepository {
   Future<Either<Failure, void>> uploadWallpaper(Map<String, dynamic> data);
+  Future<Either<Failure, void>> deleteWallpaper(String wallpaperId, String category, String publicId);
 }

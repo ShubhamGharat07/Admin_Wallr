@@ -50,3 +50,20 @@ class WallpaperUploadRequested extends WallpaperEvent {
         fileName,
       ];
 }
+
+class WallpaperDeleteRequested extends WallpaperEvent {
+  final String wallpaperId;
+  final String title;
+  final String category;
+  final String publicId;
+
+  const WallpaperDeleteRequested({
+    required this.wallpaperId,
+    required this.title,
+    required this.category,
+    required this.publicId,
+  });
+
+  @override
+  List<Object?> get props => [wallpaperId, title, category, publicId];
+}

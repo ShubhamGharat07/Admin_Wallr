@@ -85,8 +85,10 @@
 
 // lib/core/utils/cloudinary_service.dart
 
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'logger.dart';
 
 class CloudinaryUploadResult {
   final String secureUrl;
@@ -113,6 +115,8 @@ class CloudinaryService {
 
   static String get _cloudName => dotenv.env['CLOUDINARY_CLOUD_NAME']!;
   static String get _uploadPreset => dotenv.env['CLOUDINARY_UPLOAD_PRESET']!;
+  static String get _apiKey => dotenv.env['CLOUDINARY_API_KEY']!;
+  static String? get _apiSecret => dotenv.env['CLOUDINARY_API_SECRET'];
 
   // ── Upload image ──────────────────────────────────────────
   Future<CloudinaryUploadResult> uploadWallpaper({
@@ -145,10 +149,57 @@ class CloudinaryService {
 
   // ── Delete image ──────────────────────────────────────────
   Future<void> deleteWallpaper(String publicId) async {
-    await _dio.post(
-      'https://api.cloudinary.com/v1_1/$_cloudName/image/destroy',
-      data: {'public_id': publicId},
-    );
+    try {
+      AppLogger.info('DELETE STARTED', tag: 'CloudinaryService');
+      AppLogger.info('Cloud Name: $_cloudName | Public ID: $publicId', tag: 'CloudinaryService');
+
+      if (_apiSecret == null) {
+        throw Exception('CLOUDINARY_API_SECRET is required for delete operations. Add it to .env file.');
+      }
+
+      final url = 'https://api.cloudinary.com/v1_1/$_cloudName/image/destroy';
+      AppLogger.info('URL: $url', tag: 'CloudinaryService');
+
+      // Cloudinary requires Basic Auth for admin APIs
+      final credentials = base64Encode(utf8.encode('$_apiKey:$_apiSecret'));
+      AppLogger.info('Using Basic Auth with credentials', tag: 'CloudinaryService');
+
+      final requestData = FormData.fromMap({
+        'public_id': publicId,
+      });
+
+      final response = await _dio.post(
+        url,
+        data: requestData,
+        options: Options(
+          headers: {
+            'Authorization': 'Basic $credentials',
+          },
+        ),
+      );
+
+      AppLogger.info('DELETE SUCCESS - Status: ${response.statusCode}', tag: 'CloudinaryService');
+      AppLogger.info('Response: ${response.data}', tag: 'CloudinaryService');
+    } on DioException catch (e) {
+      AppLogger.error(
+        'DIO ERROR during delete | Status: ${e.response?.statusCode}',
+        error: e,
+        tag: 'CloudinaryService',
+      );
+      AppLogger.error(
+        'Response Data: ${e.response?.data}',
+        tag: 'CloudinaryService',
+      );
+      rethrow;
+    } catch (e, st) {
+      AppLogger.error(
+        'ERROR during delete: $e',
+        error: e,
+        stackTrace: st,
+        tag: 'CloudinaryService',
+      );
+      rethrow;
+    }
   }
 
   // ── URL transforms ────────────────────────────────────────
