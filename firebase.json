@@ -12,6 +12,7 @@
     }
   },
   "hosting": {
+    "site": "wallr-f7607",
     "public": "build/web",
     "ignore": [
       "firebase.json",
