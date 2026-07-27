@@ -10,6 +10,10 @@ import 'package:wallr_admin/features/categories/data/datasources/category_dataso
 import 'package:wallr_admin/features/categories/data/repositories/category_repository_impl.dart';
 import 'package:wallr_admin/features/categories/domain/repositories/category_repository.dart';
 import 'package:wallr_admin/features/categories/presentation/bloc/category_bloc.dart';
+import 'package:wallr_admin/features/notifications/data/datasources/notification_datasource.dart';
+import 'package:wallr_admin/features/notifications/data/repositories/notification_repository_impl.dart';
+import 'package:wallr_admin/features/notifications/domain/repositories/notification_repository.dart';
+import 'package:wallr_admin/features/notifications/presentation/bloc/notification_bloc.dart';
 import 'package:wallr_admin/features/wallpapers/data/datasources/wallpaper_datasource.dart';
 import 'package:wallr_admin/features/wallpapers/data/repositories/wallpaper_repository_impl.dart';
 import 'package:wallr_admin/features/wallpapers/domain/repositories/wallpaper_repository.dart';
@@ -83,4 +87,13 @@ Future<void> initDependencies() async {
     () => WallpaperRepositoryImpl(sl<WallpaperDataSource>()),
   );
   sl.registerFactory(() => WallpaperBloc(sl<WallpaperRepository>()));
+
+  // Notifications
+  sl.registerLazySingleton<NotificationDataSource>(
+    () => NotificationDataSourceImpl(sl<FirebaseFirestore>(), sl<FirebaseAuth>()),
+  );
+  sl.registerLazySingleton<NotificationRepository>(
+    () => NotificationRepositoryImpl(sl<NotificationDataSource>()),
+  );
+  sl.registerFactory(() => NotificationBloc(sl<NotificationRepository>()));
 }

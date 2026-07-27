@@ -12,6 +12,7 @@ class WallpaperUploadRequested extends WallpaperEvent {
   final String title;
   final String category;
   final List<String> tags;
+
   final String resolution;
   final int width;
   final int height;
@@ -37,18 +38,18 @@ class WallpaperUploadRequested extends WallpaperEvent {
 
   @override
   List<Object?> get props => [
-        title,
-        category,
-        tags,
-        resolution,
-        width,
-        height,
-        isPremium,
-        isEditorChoice,
-        isActive,
-        imageBytes,
-        fileName,
-      ];
+    title,
+    category,
+    tags,
+    resolution,
+    width,
+    height,
+    isPremium,
+    isEditorChoice,
+    isActive,
+    imageBytes,
+    fileName,
+  ];
 }
 
 class WallpaperDeleteRequested extends WallpaperEvent {
