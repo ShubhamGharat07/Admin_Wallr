@@ -41,5 +41,5 @@ jobs:
         run: |
           firebase deploy \
             --project wallr-f7607 \
-            --only hosting:default \
+            --only hosting \
             --non-interactive
