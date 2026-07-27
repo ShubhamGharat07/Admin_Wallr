@@ -32,10 +32,12 @@ jobs:
       - name: Build Web
         run: flutter build web --release
 
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
       - name: Deploy to Firebase
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_WALLR_F7607 }}
-          channelId: live
-          projectId: wallr-f7607
+        run: |
+          firebase deploy \
+            --project wallr-f7607 \
+            --only hosting \
+            --token "${{ secrets.FIREBASE_TOKEN }}"
